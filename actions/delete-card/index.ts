@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
 import { createSafeAction } from "@/lib/create-safe-action";
+import { createAuditLog } from "@/lib/create-audit-log";
 
 import { InputType, ReturnType } from "./types";
 import { DeleteCard } from "./schema";
@@ -21,6 +22,12 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   try {
     card = await db.card.delete({
       where: { id, list: { board: { orgId } } },
+    });
+    await createAuditLog({
+      entityId: card.id,
+      entityTitle: card.title,
+      entityType: "CARD",
+      action: "DELETE",
     });
   } catch (error) {
     return { error: "Failed to delete!" };

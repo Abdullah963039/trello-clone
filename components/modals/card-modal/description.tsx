@@ -20,7 +20,7 @@ interface DescriptionProps {
 }
 
 export const Description = ({ data }: DescriptionProps) => {
-  const quertClient = useQueryClient();
+  const queryClient = useQueryClient();
   const params = useParams();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -46,9 +46,9 @@ export const Description = ({ data }: DescriptionProps) => {
 
   const { execute, fieldsErrors } = useAction(updateCard, {
     onSuccess: (data) => {
-      quertClient.invalidateQueries({
-        queryKey: ["card", data.id],
-      });
+      queryClient.invalidateQueries({ queryKey: ["card", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["card-logs", data.id] });
+
       toast.success(`Card "${data.title}" updated`);
       disableEditing();
     },
@@ -103,7 +103,7 @@ export const Description = ({ data }: DescriptionProps) => {
   );
 };
 
-Description.Sekeleton = function DescriptionSkeleton() {
+Description.Skeleton = function DescriptionSkeleton() {
   return (
     <div className="flex items-start gap-x-3 w-full">
       <Skeleton className="h-6 w-6 bg-neutral-200" />

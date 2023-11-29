@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Activity, CreditCard, Layout, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   AccordionContent,
@@ -9,7 +10,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 

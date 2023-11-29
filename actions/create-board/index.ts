@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
 import { createSafeAction } from "@/lib/create-safe-action";
+import { createAuditLog } from "@/lib/create-audit-log";
+import { incrementAvailableCount, hasAvailableCount } from "@/lib/org-limit";
+import { checkSubscription } from "@/lib/subscription";
 
 import { InputType, ReturnType } from "./types";
 import { CreateBoard } from "./schema";
@@ -13,6 +16,15 @@ const handler = async (data: InputType): Promise<ReturnType> => {
   const { userId, orgId } = auth();
 
   if (!userId || !orgId) return { error: "Unauthorized" };
+
+  const canCreate = await hasAvailableCount();
+  const isPro = await checkSubscription();
+
+  if (!canCreate && !isPro)
+    return {
+      error:
+        "You've reached your limit of free boards. Please upgrade to create more",
+    };
 
   const { title, image } = data;
 
@@ -43,6 +55,15 @@ const handler = async (data: InputType): Promise<ReturnType> => {
         imageLinkHTML,
         imageUserName,
       },
+    });
+
+    if (!isPro) await incrementAvailableCount();
+
+    await createAuditLog({
+      entityId: board.id,
+      entityTitle: board.title,
+      entityType: "BOARD",
+      action: "CREATE",
     });
   } catch (error) {
     return { error: "Failed to create!" };

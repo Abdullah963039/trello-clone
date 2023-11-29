@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
 import { createSafeAction } from "@/lib/create-safe-action";
+import { createAuditLog } from "@/lib/create-audit-log";
 
 import { InputType, ReturnType } from "./types";
 import { UpdateList } from "./schema";
@@ -22,6 +23,13 @@ const handler = async (data: InputType): Promise<ReturnType> => {
     list = await db.list.update({
       where: { id, boardId, board: { orgId } },
       data: { title },
+    });
+
+    await createAuditLog({
+      entityId: list.id,
+      entityTitle: list.title,
+      entityType: "LIST",
+      action: "UPDATE",
     });
   } catch (error) {
     return { error: "Failed to update!" };

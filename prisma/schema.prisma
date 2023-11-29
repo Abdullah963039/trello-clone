@@ -50,3 +50,35 @@ model Card {
 
   @@index([listId])
 }
+
+model AuditLog {
+  id          String @id @default(uuid())
+  orgId       String
+  action      String
+  entityId    String
+  entityType  String // "BOARD" | "LIST" | "CARD"
+  entityTitle String // "CREATE" | "UPDATE" | "DELETE"
+  userId      String
+  userImage   String
+  userName    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrgLimit {
+  id        String   @id @default(uuid())
+  orgId     String   @unique
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrgSubscription {
+  id                     String    @id @default(uuid())
+  orgId                  String    @unique
+  stripeCusomerId        String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subsciption_id")
+  stripePriceId          String?   @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
+}
